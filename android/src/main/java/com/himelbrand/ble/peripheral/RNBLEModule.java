@@ -29,6 +29,7 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 
 
@@ -64,6 +65,15 @@ public class RNBLEModule extends ReactContextBaseJavaModule{
         return "BLEPeripheral";
     }
 
+    // Helper method to send events to JavaScript
+    private void sendEvent(String eventName, WritableMap params) {
+        if (reactContext.hasActiveCatalystInstance()) {
+            reactContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit(eventName, params);
+        }
+    }
+
     @ReactMethod
     public void setName(String name) {
         this.name = name;
@@ -93,11 +103,40 @@ public class RNBLEModule extends ReactContextBaseJavaModule{
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothGatt.STATE_CONNECTED) {
                     mBluetoothDevices.add(device);
+                    
+                    // Send connection event to JavaScript
+                    WritableMap connectionData = Arguments.createMap();
+                    connectionData.putString("deviceId", device.getAddress());
+                    connectionData.putString("deviceName", device.getName());
+                    connectionData.putDouble("timestamp", System.currentTimeMillis() / 1000.0);
+                    sendEvent("onDeviceConnected", connectionData);
+                    
+                    Log.i("RNBLEModule", "📱 [Android] Device connected event sent: " + device.getAddress());
+                    
                 } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
                     mBluetoothDevices.remove(device);
+                    
+                    // Send disconnection event to JavaScript
+                    WritableMap disconnectionData = Arguments.createMap();
+                    disconnectionData.putString("deviceId", device.getAddress());
+                    disconnectionData.putString("deviceName", device.getName());
+                    disconnectionData.putDouble("timestamp", System.currentTimeMillis() / 1000.0);
+                    sendEvent("onDeviceDisconnected", disconnectionData);
+                    
+                    Log.i("RNBLEModule", "📱 [Android] Device disconnected event sent: " + device.getAddress());
                 }
             } else {
                 mBluetoothDevices.remove(device);
+                
+                // Send disconnection event for failed connections
+                WritableMap disconnectionData = Arguments.createMap();
+                disconnectionData.putString("deviceId", device.getAddress());
+                disconnectionData.putString("deviceName", device.getName());
+                disconnectionData.putString("error", "Connection failed with status: " + status);
+                disconnectionData.putDouble("timestamp", System.currentTimeMillis() / 1000.0);
+                sendEvent("onDeviceDisconnected", disconnectionData);
+                
+                Log.w("RNBLEModule", "📱 [Android] Device connection failed, disconnection event sent: " + device.getAddress());
             }
         }
 
@@ -126,13 +165,25 @@ public class RNBLEModule extends ReactContextBaseJavaModule{
             super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite,
                     responseNeeded, offset, value);
             characteristic.setValue(value);
-            WritableMap map = Arguments.createMap();
+            
+            // Create event data for JavaScript
+            WritableMap writeData = Arguments.createMap();
             WritableArray data = Arguments.createArray();
             for (byte b : value) {
-                data.pushInt((int) b);
+                data.pushInt((int) b & 0xFF); // Convert to unsigned byte
             }
-            map.putArray("data", data);
-            map.putString("device", device.toString());
+            writeData.putArray("data", data);
+            writeData.putString("characteristicUUID", characteristic.getUuid().toString());
+            writeData.putString("deviceId", device.getAddress());
+            writeData.putString("deviceName", device.getName());
+            writeData.putDouble("timestamp", System.currentTimeMillis() / 1000.0);
+            
+            // Send event to JavaScript
+            sendEvent("onCharacteristicWrite", writeData);
+            
+            Log.i("RNBLEModule", "📥 [Android] Characteristic write event sent to JavaScript: " + 
+                  characteristic.getUuid().toString() + ", data length: " + value.length);
+            
             if (responseNeeded) {
                 mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value);
             }

@@ -35,6 +35,8 @@ npm install https://github.com/paean-ai/react-native-ble-peripheral-modern.git
 
 ```bash
 yarn add https://github.com/paean-ai/react-native-ble-peripheral-modern.git
+# or
+yarn add @paean/react-native-ble-peripheral@github:paean-ai/react-native-ble-peripheral-modern
 ```
 
 ### iOS Setup

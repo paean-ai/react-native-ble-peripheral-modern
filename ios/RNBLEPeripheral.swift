@@ -124,6 +124,18 @@ class BLEPeripheral: RCTEventEmitter, CBPeripheralManagerDelegate {
             {
                 let char = characteristic as! CBMutableCharacteristic
                 char.value = request.value
+                
+                // Send event to JavaScript with write details
+                if(hasListeners && request.value != nil) {
+                    let writeData = [
+                        "characteristicUUID": request.characteristic.uuid.uuidString,
+                        "data": Array(request.value!),
+                        "timestamp": Date().timeIntervalSince1970
+                    ] as [String : Any]
+                    
+                    sendEvent(withName: "onCharacteristicWrite", body: writeData)
+                    print("📥 [iOS] Characteristic write event sent to JavaScript: \(request.characteristic.uuid.uuidString)")
+                }
             } else {
                 alertJS("characteristic you are trying to access doesn't match")
             }
@@ -225,7 +237,7 @@ class BLEPeripheral: RCTEventEmitter, CBPeripheralManagerDelegate {
         }
     }
 
-    @objc override func supportedEvents() -> [String]! { return ["onWarning"] }
+    @objc override func supportedEvents() -> [String]! { return ["onWarning", "onCharacteristicWrite"] }
     override func startObserving() { hasListeners = true }
     override func stopObserving() { hasListeners = false }
     @objc override static func requiresMainQueueSetup() -> Bool { return false }
