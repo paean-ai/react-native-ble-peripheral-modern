@@ -161,12 +161,24 @@ public class RNBLEModule extends ReactContextBaseJavaModule{
 
 
         AdvertiseData.Builder dataBuilder = new AdvertiseData.Builder()
-                .setIncludeDeviceName(true);
-        for (BluetoothGattService service : this.servicesMap.values()) {
-            dataBuilder.addServiceUuid(new ParcelUuid(service.getUuid()));
+                .setIncludeDeviceName(false)  // Don't include device name to save space
+                .setIncludeTxPowerLevel(false); // Don't include TX power to save space
+        
+        // Add only one service UUID to stay within 31-byte limit
+        if (!this.servicesMap.isEmpty()) {
+            BluetoothGattService firstService = this.servicesMap.values().iterator().next();
+            dataBuilder.addServiceUuid(new ParcelUuid(firstService.getUuid()));
+            Log.i("RNBLEModule", "Adding service UUID: " + firstService.getUuid().toString());
         }
+        
         AdvertiseData data = dataBuilder.build();
-        Log.i("RNBLEModule", data.toString());
+        Log.i("RNBLEModule", "Advertising data: " + data.toString());
+        
+        // Use scan response to include device name (additional 31 bytes)
+        AdvertiseData scanResponse = new AdvertiseData.Builder()
+                .setIncludeDeviceName(true)  // Include device name in scan response
+                .build();
+        Log.i("RNBLEModule", "Scan response data: " + scanResponse.toString());
 
         advertisingCallback = new AdvertiseCallback() {
             @Override
@@ -186,7 +198,7 @@ public class RNBLEModule extends ReactContextBaseJavaModule{
             }
         };
 
-        advertiser.startAdvertising(settings, data, advertisingCallback);
+        advertiser.startAdvertising(settings, data, scanResponse, advertisingCallback);
 
     }
     @ReactMethod
