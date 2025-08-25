@@ -2,12 +2,11 @@ module.exports = {
   dependency: {
     platforms: {
       android: {
-        sourceDir:
-          "../node_modules/@paean/react-native-ble-peripheral/android/",
+        sourceDir: "android/",
         packageImportPath: "import com.himelbrand.ble.peripheral.RNBLEPackage;",
       },
       ios: {
-        project: "ios/RNBLEPeripheral.xcodeproj",
+        podspecPath: "react-native-ble-peripheral.podspec",
       },
     },
   },
