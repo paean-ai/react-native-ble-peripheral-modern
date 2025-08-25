@@ -1,26 +1,63 @@
 {
-  "name": "react-native-ble-peripheral",
-  "version": "2.0.0",
-  "description": "a simulator for a BLE peripheral, to help with testing BLE apps without an actual peripheral BLE device",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "name": "@paean/react-native-ble-peripheral",
+  "version": "2.0.1-modern",
+  "description": "Modern BLE peripheral simulator for React Native - A fork with updated dependencies and React Native 0.70+ support",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "react-native": "src/index.ts",
+  "source": "src/index.ts",
+  "files": [
+    "lib",
+    "src",
+    "android",
+    "ios",
+    "react-native-ble-peripheral.podspec",
+    "react-native.config.js"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepare": "npm run build",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/himelbrand/react-native-ble-peripheral.git"
+    "url": "git+https://github.com/paean-ai/react-native-ble-peripheral-modern.git"
   },
   "keywords": [
     "react-native",
     "ble",
     "peripheral",
-    "react"
+    "bluetooth",
+    "gatt",
+    "advertise",
+    "modern",
+    "android",
+    "ios"
   ],
-  "author": "Omri Himelbrand",
+  "author": "Paean (based on original work by Omri Himelbrand)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/himelbrand/react-native-ble-peripheral/issues"
+    "url": "https://github.com/paean-ai/react-native-ble-peripheral-modern/issues"
   },
-  "homepage": "https://github.com/himelbrand/react-native-ble-peripheral#readme"
+  "homepage": "https://github.com/paean-ai/react-native-ble-peripheral-modern#readme",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": ">=0.70.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-native": "^0.72.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "codegenConfig": {
+    "name": "RNBLEPeripheralSpec",
+    "type": "modules",
+    "jsSrcsDir": "src"
+  }
 }

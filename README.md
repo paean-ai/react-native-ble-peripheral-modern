@@ -1,171 +1,297 @@
-# React Native BLE Peripheral
-Native BLE Peripheral in React Native
-## Welcome
+# React Native BLE Peripheral Modern
 
-This is a simulator for a BLE peripheral, to help with testing BLE apps without an actual peripheral BLE device
-this project is not yet complete,
-for all ready parts see documentation below.
-(docs are not complete, feel free to improve them)
+[![npm version](https://badge.fury.io/js/%40paean%2Freact-native-ble-peripheral.svg)](https://github.com/paean-ai/react-native-ble-peripheral-modern)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Realease notes
-- fixed issues fixed on github repo in npm package - starting from version 1.2.0
-- **IOS support was added in version 2.0.0**
-- merged PR to fix write charicaristics - version 2.0.1
-    
-### Still missing
+Modern, TypeScript-enabled BLE peripheral simulator for React Native applications. This is a modernized fork of [himelbrand/react-native-ble-peripheral](https://github.com/himelbrand/react-native-ble-peripheral) with updated dependencies, React Native 0.70+ support, and enhanced features.
 
-if you would like to contribute to this project or suggest more future features you're welcome to so via an issue or pull request.
+## 🚀 Features
 
-### IOS support
-right now this package does not support IOS, so any one that wants to help and contribute the IOS support is more than welcome
+- ✅ **Modern React Native Support**: Compatible with React Native 0.70+
+- ✅ **Cross-Platform**: Supports both Android and iOS
+- ✅ **TypeScript**: Full TypeScript support with complete type definitions
+- ✅ **Auto-linking**: No manual linking required for React Native 0.60+
+- ✅ **Modern Android**: Updated to latest Android APIs and Gradle
+- ✅ **iOS Support**: Includes proper podspec for CocoaPods integration
+- ✅ **Error Handling**: Comprehensive error codes and handling
+- ✅ **Performance**: Optimized for modern React Native architecture
 
+## 📱 Platform Support
 
-## Installation
+| Platform | Support | Notes                  |
+| -------- | ------- | ---------------------- |
+| Android  | ✅ Full | API 21+ (Android 5.0+) |
+| iOS      | ✅ Full | iOS 12.0+              |
+
+## 🔧 Installation
+
+### Using npm
 
 ```bash
-npm install react-native-ble-peripheral --save
-or 
-yarn add react-native-ble-peripheral
+npm install https://github.com/paean-ai/react-native-ble-peripheral-modern.git
 ```
-npm page - https://www.npmjs.com/package/react-native-ble-peripheral
-## Add permissions
-* In `AndroidManifest.xml` add:
+
+### Using yarn
+
+```bash
+yarn add https://github.com/paean-ai/react-native-ble-peripheral-modern.git
+```
+
+### iOS Setup
+
+```bash
+cd ios && pod install
+```
+
+### Android Setup
+
+No additional setup required - auto-linking handles everything!
+
+## 📋 Permissions
+
+### Android
+
+Add to your `android/app/src/main/AndroidManifest.xml`:
+
 ```xml
+<!-- Bluetooth permissions for Android 11 and below -->
+<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
 
- <uses-permission android:name="android.permission.BLUETOOTH"/>
- <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-```
-## Project setup and initialization auto
-```bash
-react-native link
-```
-## Project setup and initialization manually 
+<!-- Location permissions (required for BLE on all Android versions) -->
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-* In `android/settings.gradle`
-
-```gradle
-...
-include ':react-native-ble-peripheral'
-project(':react-native-ble-peripheral').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-ble-peripheral/android')
-
+<!-- Bluetooth permissions for Android 12+ (API 31+) -->
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
 ```
 
-* In `android/app/build.gradle`
+### iOS
 
-```gradle
-...
-dependencies {
-    /* YOUR DEPENDENCIES HERE */
-   compile project(':react-native-ble-peripheral') // <--- add this
-}
+Add to your `ios/YourApp/Info.plist`:
 
+```xml
+<key>NSBluetoothAlwaysUsageDescription</key>
+<string>This app uses Bluetooth to simulate BLE peripheral devices for testing purposes.</string>
+<key>NSBluetoothPeripheralUsageDescription</key>
+<string>This app uses Bluetooth to simulate BLE peripheral devices for testing purposes.</string>
 ```
 
-* Register Module (in MainApplication.java)
+## 🎯 Quick Start
 
-```java
-import com.himelbrand.forwardcalls.RNForwardCallsPackage;  // <--- import
+```typescript
+import BLEPeripheral, {
+  BLEPermissions,
+  BLEProperties,
+} from "react-native-ble-peripheral";
 
-public class MainActivity extends ReactActivity {
-  ......
+// Set device name
+BLEPeripheral.setName("MyTestDevice");
 
-  @Override
-  protected List<ReactPackage> getPackages() {
-      return Arrays.<ReactPackage>asList(
-          new MainReactPackage(),
-          new RNBLEPackage() // <--- Add this
-      );
-  }
+// Add a service
+const serviceUUID = "12345678-1234-1234-1234-123456789abc";
+BLEPeripheral.addService(serviceUUID, true);
 
-  ......
+// Add a characteristic
+const characteristicUUID = "12345678-1234-1234-1234-123456789abd";
+BLEPeripheral.addCharacteristicToService(
+  serviceUUID,
+  characteristicUUID,
+  BLEPermissions.READABLE | BLEPermissions.WRITABLE,
+  BLEProperties.READ | BLEProperties.WRITE | BLEProperties.NOTIFY
+);
 
-}
-```
-
-
-## Usage
-
-#### Import
-
-```javascript
-import BLEPeripheral from 'react-native-ble-peripheral'
-```
-
-#### Add Service 
-BLEPeripheral.addService(UUID:string, primary:boolean)
-```javascript
-BLEPeripheral.addService('XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX', true) //for primary service
-BLEPeripheral.addService('XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX', false) //for non primary service
-```
-#### Add Characteristic
-BLEPeripheral.addCharacteristicToService(ServiceUUID:string, UUID:string, permissions:number, properties:number)
-
-https://developer.android.com/reference/android/bluetooth/BluetoothGattCharacteristic.html
-the link above is for permissions and properties constants info
-
-Permissions:
-* 1 - Readable
-* 2 - Readable Encrypted
-* 4 - Readable Encrypted MITM (Man-in-the-middle) Protection 
-* 16 - Writable
-* 32 - Writable Encrypted
-* 64 - Writable Encrypted MITM Protection
-* 128 - Writable Signed
-* 256 - Writable Signed MITM
-
-Properties:
-* 1 - Broadcastable
-* 2 - Readable
-* 4 - Writable without response
-* 8 - Writable
-* 16 - Supports notification
-* 32 - Supports indication
-* 64 - Signed Write
-* 128 - Extended properties
-
-```javascript
-BLEPeripheral.addCharacteristicToService('XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX', 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX', 16 | 1, 8) //this is a Characteristic with read and write permissions and notify property
-```
-#### Notify to devices
-BLEPeripheral.sendNotificationToDevices(ServiceUUID:string, CharacteristicUUID:string, data:byte[]) 
-- note #1: in js it's not really a byte array, but an array of numbers
-- note #2: the CharacteristicUUID must be of a Characteristic with notify property
-```javascript
-BLEPeripheral.sendNotificationToDevices('XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX', 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX', [0x10,0x01,0xA1,0x80]) //sends a notification to all connected devices that, using the char uuid given
-```
-
-#### start Advertising 
-note:use this only after adding services and characteristics
-```javascript
- BLEPeripheral.start()
-  .then(res => {
-       console.log(res)
-  }).catch(error => {
-       console.log(error)
+// Start advertising
+BLEPeripheral.start()
+  .then(() => {
+    console.log("✅ BLE advertising started");
   })
+  .catch((error) => {
+    console.error("❌ Failed to start advertising:", error);
+  });
+
+// Send notification to connected devices
+const data = [0x01, 0x02, 0x03, 0x04];
+BLEPeripheral.sendNotificationToDevices(serviceUUID, characteristicUUID, data);
+
+// Stop advertising
+BLEPeripheral.stop();
 ```
 
-In case of error, these are the error codes:
-* 1 - Failed to start advertising as the advertise data to be broadcasted is larger than 31 bytes.
-* 2 - Failed to start advertising because no advertising instance is available.
-* 3 - Failed to start advertising as the advertising is already started.
-* 4 - Operation failed due to an internal error.
-* 5 - This feature is not supported on this platform.
+## 📚 API Reference
 
+### Methods
 
-#### stop Advertising 
-```javascript
- BLEPeripheral.stop()
+#### `setName(name: string): void`
+
+Sets the device name for advertising.
+
+#### `addService(serviceUUID: string, primary: boolean): void`
+
+Adds a GATT service to the peripheral.
+
+#### `addCharacteristicToService(serviceUUID: string, characteristicUUID: string, permissions: number, properties: number): void`
+
+Adds a characteristic to a service.
+
+#### `start(): Promise<void>`
+
+Starts BLE advertising. Returns a promise that resolves when advertising starts successfully.
+
+#### `stop(): void`
+
+Stops BLE advertising.
+
+#### `sendNotificationToDevices(serviceUUID: string, characteristicUUID: string, data: number[]): void`
+
+Sends notification data to all connected devices.
+
+### Constants
+
+#### BLE Permissions
+
+```typescript
+export const BLEPermissions = {
+  READABLE: 1,
+  READABLE_ENCRYPTED: 2,
+  READABLE_ENCRYPTED_MITM: 4,
+  WRITABLE: 16,
+  WRITABLE_ENCRYPTED: 32,
+  WRITABLE_ENCRYPTED_MITM: 64,
+  WRITABLE_SIGNED: 128,
+  WRITABLE_SIGNED_MITM: 256,
+};
 ```
 
-#### Set name (optional)
-BLEPeripheral.setName(name:string)
+#### BLE Properties
 
-This method sets the name of the device broadcast, before calling `start`.
-```javascript
-BLEPeripheral.setName('RNBLETEST')
+```typescript
+export const BLEProperties = {
+  BROADCAST: 1,
+  READ: 2,
+  WRITE_NO_RESPONSE: 4,
+  WRITE: 8,
+  NOTIFY: 16,
+  INDICATE: 32,
+  SIGNED_WRITE: 64,
+  EXTENDED_PROPS: 128,
+};
 ```
 
-DOCs and project is under development 
-Any help would be welcome...
-feel free to contact me
+#### Advertising Error Codes
+
+```typescript
+export const BLEAdvertiseErrors = {
+  DATA_TOO_LARGE: 1, // Advertising data too large (>31 bytes)
+  TOO_MANY_ADVERTISERS: 2, // No advertising instance available
+  ALREADY_STARTED: 3, // Advertising already started
+  INTERNAL_ERROR: 4, // Internal error
+  FEATURE_UNSUPPORTED: 5, // Feature not supported on this platform
+};
+```
+
+## 🔍 Error Handling
+
+```typescript
+BLEPeripheral.start().catch((error) => {
+  switch (error.code) {
+    case BLEAdvertiseErrors.DATA_TOO_LARGE:
+      console.error("Advertising data is too large");
+      break;
+    case BLEAdvertiseErrors.TOO_MANY_ADVERTISERS:
+      console.error("Too many advertisers active");
+      break;
+    case BLEAdvertiseErrors.ALREADY_STARTED:
+      console.error("Advertising already started");
+      break;
+    default:
+      console.error("Unknown advertising error:", error);
+  }
+});
+```
+
+## 🎨 TypeScript Support
+
+This library includes complete TypeScript definitions:
+
+```typescript
+interface BLEPeripheralInterface {
+  setName(name: string): void;
+  addService(serviceUUID: string, primary: boolean): void;
+  addCharacteristicToService(
+    serviceUUID: string,
+    characteristicUUID: string,
+    permissions: number,
+    properties: number
+  ): void;
+  start(): Promise<void>;
+  stop(): void;
+  sendNotificationToDevices(
+    serviceUUID: string,
+    characteristicUUID: string,
+    data: number[]
+  ): void;
+}
+```
+
+## 🔄 Migration from Original Library
+
+If you're migrating from `react-native-ble-peripheral`:
+
+1. **Remove old library**:
+
+   ```bash
+   npm uninstall react-native-ble-peripheral
+   ```
+
+2. **Install modern version**:
+
+   ```bash
+   npm install https://github.com/paean-ai/react-native-ble-peripheral-modern.git
+   ```
+
+3. **Remove manual linking** (if you had it):
+
+   - Remove from `android/settings.gradle`
+   - Remove from `android/app/build.gradle`
+   - Remove from `MainApplication.java` or `MainApplication.kt`
+
+4. **Update imports** (optional - import path remains the same):
+   ```typescript
+   // Works the same as before
+   import BLEPeripheral from "react-native-ble-peripheral";
+   ```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Development Setup
+
+1. Fork the repository
+2. Clone your fork: `git clone https://github.com/your-username/react-native-ble-peripheral-modern.git`
+3. Install dependencies: `npm install`
+4. Make your changes
+5. Test your changes
+6. Submit a pull request
+
+## 📄 License
+
+MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Original work by [Omri Himelbrand](https://github.com/himelbrand)
+- Modernized and maintained by [Paean AI](https://github.com/paean-ai)
+
+## 📞 Support
+
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/paean-ai/react-native-ble-peripheral-modern/issues)
+- 💡 **Feature Requests**: [GitHub Issues](https://github.com/paean-ai/react-native-ble-peripheral-modern/issues)
+- 📚 **Documentation**: [GitHub Wiki](https://github.com/paean-ai/react-native-ble-peripheral-modern/wiki)
+
+---
+
+**Made with ❤️ for the React Native community**

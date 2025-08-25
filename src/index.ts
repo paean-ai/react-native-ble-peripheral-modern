@@ -1,3 +1,22 @@
+import { NativeModules, Platform } from "react-native";
+
+const LINKING_ERROR =
+  `The package '@paean/react-native-ble-peripheral' doesn't seem to be linked. Make sure: \n\n` +
+  Platform.select({ ios: "- You have run 'pod install'\n", default: "" }) +
+  "- You rebuilt the app after installing the package\n" +
+  "- You are not using Expo managed workflow\n";
+
+const BLEPeripheral = NativeModules.RNBLEPeripheral
+  ? NativeModules.RNBLEPeripheral
+  : new Proxy(
+      {},
+      {
+        get() {
+          throw new Error(LINKING_ERROR);
+        },
+      }
+    );
+
 export interface BLEPeripheralInterface {
   /**
    * Set the name of the BLE peripheral device
@@ -51,37 +70,37 @@ export interface BLEPeripheralInterface {
 }
 
 // BLE Characteristic Permissions
-export declare const BLEPermissions: {
-  readonly READABLE: 1;
-  readonly READABLE_ENCRYPTED: 2;
-  readonly READABLE_ENCRYPTED_MITM: 4;
-  readonly WRITABLE: 16;
-  readonly WRITABLE_ENCRYPTED: 32;
-  readonly WRITABLE_ENCRYPTED_MITM: 64;
-  readonly WRITABLE_SIGNED: 128;
-  readonly WRITABLE_SIGNED_MITM: 256;
-};
+export const BLEPermissions = {
+  READABLE: 1,
+  READABLE_ENCRYPTED: 2,
+  READABLE_ENCRYPTED_MITM: 4,
+  WRITABLE: 16,
+  WRITABLE_ENCRYPTED: 32,
+  WRITABLE_ENCRYPTED_MITM: 64,
+  WRITABLE_SIGNED: 128,
+  WRITABLE_SIGNED_MITM: 256,
+} as const;
 
 // BLE Characteristic Properties
-export declare const BLEProperties: {
-  readonly BROADCAST: 1;
-  readonly READ: 2;
-  readonly WRITE_NO_RESPONSE: 4;
-  readonly WRITE: 8;
-  readonly NOTIFY: 16;
-  readonly INDICATE: 32;
-  readonly SIGNED_WRITE: 64;
-  readonly EXTENDED_PROPS: 128;
-};
+export const BLEProperties = {
+  BROADCAST: 1,
+  READ: 2,
+  WRITE_NO_RESPONSE: 4,
+  WRITE: 8,
+  NOTIFY: 16,
+  INDICATE: 32,
+  SIGNED_WRITE: 64,
+  EXTENDED_PROPS: 128,
+} as const;
 
 // Error codes for advertising failures
-export declare const BLEAdvertiseErrors: {
-  readonly DATA_TOO_LARGE: 1;
-  readonly TOO_MANY_ADVERTISERS: 2;
-  readonly ALREADY_STARTED: 3;
-  readonly INTERNAL_ERROR: 4;
-  readonly FEATURE_UNSUPPORTED: 5;
-};
+export const BLEAdvertiseErrors = {
+  DATA_TOO_LARGE: 1,
+  TOO_MANY_ADVERTISERS: 2,
+  ALREADY_STARTED: 3,
+  INTERNAL_ERROR: 4,
+  FEATURE_UNSUPPORTED: 5,
+} as const;
 
 export type BLEPermission =
   (typeof BLEPermissions)[keyof typeof BLEPermissions];
@@ -90,8 +109,7 @@ export type BLEAdvertiseError =
   (typeof BLEAdvertiseErrors)[keyof typeof BLEAdvertiseErrors];
 
 // Main export - the BLE Peripheral module
-declare const BLEPeripheral: BLEPeripheralInterface;
-export default BLEPeripheral;
+export default BLEPeripheral as BLEPeripheralInterface;
 
 // Named exports for convenience
 export {
